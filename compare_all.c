@@ -121,7 +121,7 @@ CsvRow *read_samples(void)
 
 double compare_2_samples(int i, int j)
 {
-    int num_equal_snps = 0;
+    int num_equal_alleles = 0;
     int snp_pos;
     Genotype gt1, gt2;
 
@@ -129,14 +129,53 @@ double compare_2_samples(int i, int j)
     {
         gt1 = samples[i][snp_pos];
         gt2 = samples[j][snp_pos];
-        // We don't consider NC SNPs to be the same
-        if (gt1 != NC && gt2 != NC && gt1 == gt2)
+        switch(gt1)
         {
-            num_equal_snps ++;
-        }
+            case AA:
+                switch(gt2) {
+                    case AA:
+                        num_equal_alleles += 2;
+                        break;
+                    case AB:
+                        num_equal_alleles += 1;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case AB:
+                switch(gt2) {
+                    case AA:
+                        num_equal_alleles += 1;
+                        break;
+                    case AB:
+                        num_equal_alleles += 2;
+                        break;
+                    case BB:
+                        num_equal_alleles += 1;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case BB:
+                switch(gt2) {
+                    case BB:
+                        num_equal_alleles += 2;
+                        break;
+                    case AB:
+                        num_equal_alleles += 1;
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        } 
     }
 
-    return ((double) num_equal_snps) / ((double) NUM_SNPS);
+    return ((double) num_equal_alleles) / ((double) NUM_SNPS * 2);
 }
 
 void compare_all_samples(void)
